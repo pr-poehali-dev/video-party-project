@@ -12,6 +12,7 @@ const Index = () => {
   const [chatMessage, setChatMessage] = useState('');
   const [selectedVideo, setSelectedVideo] = useState<number | null>(null);
   const [reactions, setReactions] = useState<Record<number, { fire: number; heart: number; clap: number }>>({});
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleReaction = (videoId: number, type: 'fire' | 'heart' | 'clap') => {
     setReactions(prev => ({
@@ -107,6 +108,12 @@ const Index = () => {
             </div>
 
             <div className="flex items-center gap-3">
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 text-white hover:text-[#FF1744] transition-colors"
+              >
+                <Icon name={mobileMenuOpen ? "X" : "Menu"} className="w-6 h-6" />
+              </button>
               <Button className="gradient-red-purple text-white font-bold hover:opacity-90 transition-opacity">
                 <Icon name="Upload" className="w-4 h-4 mr-2" />
                 Загрузить
@@ -115,6 +122,29 @@ const Index = () => {
             </div>
           </div>
         </div>
+        
+        {mobileMenuOpen && (
+          <div className="md:hidden absolute top-full left-0 right-0 bg-[#212121] border-b border-white/10 animate-fade-in">
+            <div className="container mx-auto px-4 py-4 space-y-2">
+              {['Главная', 'Видео', 'Трансляции', 'События', 'Сообщество'].map((item, index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    setActiveTab(item.toLowerCase());
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`block w-full text-left px-4 py-3 rounded-lg font-semibold transition-all ${
+                    activeTab === item.toLowerCase()
+                      ? 'bg-gradient-to-r from-[#FF1744] to-[#9C27B0] text-white'
+                      : 'text-white/70 hover:bg-white/5 hover:text-[#FF1744]'
+                  }`}
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </nav>
 
       <div className="pt-24 pb-8">
