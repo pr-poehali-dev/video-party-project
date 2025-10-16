@@ -15,6 +15,8 @@ const Index = () => {
   const [reactions, setReactions] = useState<Record<number, { fire: number; heart: number; clap: number }>>({});
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [fullscreenVideo, setFullscreenVideo] = useState<typeof videos[0] | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterLive, setFilterLive] = useState<boolean | null>(null);
 
   const handleReaction = (videoId: number, type: 'fire' | 'heart' | 'clap') => {
     setReactions(prev => ({
@@ -155,7 +157,50 @@ const Index = () => {
             <h2 className="text-5xl md:text-6xl font-black text-white mb-4 bg-clip-text text-transparent bg-gradient-to-r from-[#FF1744] via-[#9C27B0] to-[#00E5FF]">
               Лучшие вписки здесь
             </h2>
-            <p className="text-xl text-white/70">Смотри, делись, зажигай вместе с нами</p>
+            <p className="text-xl text-white/70 mb-6">Смотри, делись, зажигай вместе с нами</p>
+            
+            <div className="max-w-2xl mx-auto">
+              <div className="flex gap-2 mb-4">
+                <div className="relative flex-1">
+                  <Icon name="Search" className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                  <Input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Поиск видео, авторов, событий..."
+                    className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/40 h-12 text-base"
+                  />
+                </div>
+                <Button className="gradient-purple-cyan text-white px-6 h-12 font-bold">
+                  <Icon name="Search" className="w-5 h-5" />
+                </Button>
+              </div>
+              
+              <div className="flex items-center justify-center gap-2 flex-wrap">
+                <Button
+                  onClick={() => setFilterLive(null)}
+                  variant={filterLive === null ? "default" : "outline"}
+                  className={filterLive === null ? "gradient-primary text-white" : "border-white/20 text-white/70 hover:text-white hover:bg-white/5"}
+                >
+                  Все
+                </Button>
+                <Button
+                  onClick={() => setFilterLive(true)}
+                  variant={filterLive === true ? "default" : "outline"}
+                  className={filterLive === true ? "bg-[#FF1744] text-white hover:bg-[#FF1744]/90" : "border-white/20 text-white/70 hover:text-white hover:bg-white/5"}
+                >
+                  <div className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse" />
+                  Прямые эфиры
+                </Button>
+                <Button
+                  onClick={() => setFilterLive(false)}
+                  variant={filterLive === false ? "default" : "outline"}
+                  className={filterLive === false ? "gradient-red-purple text-white" : "border-white/20 text-white/70 hover:text-white hover:bg-white/5"}
+                >
+                  <Icon name="Video" className="w-4 h-4 mr-2" />
+                  Записи
+                </Button>
+              </div>
+            </div>
           </div>
 
           <div className="grid lg:grid-cols-3 gap-6">
@@ -171,7 +216,15 @@ const Index = () => {
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
-                {videos.map((video, index) => (
+                {videos
+                  .filter(video => {
+                    const matchesSearch = searchQuery === '' || 
+                      video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      video.author.toLowerCase().includes(searchQuery.toLowerCase());
+                    const matchesFilter = filterLive === null || video.isLive === filterLive;
+                    return matchesSearch && matchesFilter;
+                  })
+                  .map((video, index) => (
                   <Card
                     key={video.id}
                     className="group relative overflow-hidden bg-white/5 border-white/10 hover:border-[#FF1744]/50 transition-all duration-300 cursor-pointer hover:scale-[1.02] animate-scale-in"
