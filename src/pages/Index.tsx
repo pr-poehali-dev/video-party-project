@@ -11,6 +11,18 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState('home');
   const [chatMessage, setChatMessage] = useState('');
   const [selectedVideo, setSelectedVideo] = useState<number | null>(null);
+  const [reactions, setReactions] = useState<Record<number, { fire: number; heart: number; clap: number }>>({});
+
+  const handleReaction = (videoId: number, type: 'fire' | 'heart' | 'clap') => {
+    setReactions(prev => ({
+      ...prev,
+      [videoId]: {
+        fire: (prev[videoId]?.fire || 0) + (type === 'fire' ? 1 : 0),
+        heart: (prev[videoId]?.heart || 0) + (type === 'heart' ? 1 : 0),
+        clap: (prev[videoId]?.clap || 0) + (type === 'clap' ? 1 : 0)
+      }
+    }));
+  };
 
   const videos = [
     {
@@ -177,6 +189,30 @@ const Index = () => {
                               <Icon name="Heart" className="w-3 h-3" />
                               {video.likes}
                             </span>
+                          </div>
+                          
+                          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/10">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleReaction(video.id, 'fire'); }}
+                              className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 transition-all hover:scale-110 active:scale-95"
+                            >
+                              <span className="text-sm">🔥</span>
+                              <span className="text-xs font-bold text-white">{reactions[video.id]?.fire || 0}</span>
+                            </button>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleReaction(video.id, 'heart'); }}
+                              className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 transition-all hover:scale-110 active:scale-95"
+                            >
+                              <span className="text-sm">❤️</span>
+                              <span className="text-xs font-bold text-white">{reactions[video.id]?.heart || 0}</span>
+                            </button>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleReaction(video.id, 'clap'); }}
+                              className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 transition-all hover:scale-110 active:scale-95"
+                            >
+                              <span className="text-sm">👏</span>
+                              <span className="text-xs font-bold text-white">{reactions[video.id]?.clap || 0}</span>
+                            </button>
                           </div>
                         </div>
                       </div>
