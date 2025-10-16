@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 
 const Index = () => {
@@ -13,6 +14,7 @@ const Index = () => {
   const [selectedVideo, setSelectedVideo] = useState<number | null>(null);
   const [reactions, setReactions] = useState<Record<number, { fire: number; heart: number; clap: number }>>({});
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [fullscreenVideo, setFullscreenVideo] = useState<typeof videos[0] | null>(null);
 
   const handleReaction = (videoId: number, type: 'fire' | 'heart' | 'clap') => {
     setReactions(prev => ({
@@ -174,7 +176,7 @@ const Index = () => {
                     key={video.id}
                     className="group relative overflow-hidden bg-white/5 border-white/10 hover:border-[#FF1744]/50 transition-all duration-300 cursor-pointer hover:scale-[1.02] animate-scale-in"
                     style={{ animationDelay: `${index * 100}ms` }}
-                    onClick={() => setSelectedVideo(video.id)}
+                    onClick={() => setFullscreenVideo(video)}
                   >
                     <div className="relative aspect-video overflow-hidden">
                       <img
@@ -336,6 +338,119 @@ const Index = () => {
           </div>
         </div>
       </div>
+
+      <Dialog open={!!fullscreenVideo} onOpenChange={() => setFullscreenVideo(null)}>
+        <DialogContent className="max-w-6xl w-full h-[90vh] bg-[#212121] border-white/10 p-0">
+          {fullscreenVideo && (
+            <div className="flex flex-col lg:flex-row h-full">
+              <div className="flex-1 flex flex-col bg-black">
+                <div className="relative flex-1">
+                  <img
+                    src={fullscreenVideo.thumbnail}
+                    alt={fullscreenVideo.title}
+                    className="w-full h-full object-contain"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <button className="w-20 h-20 rounded-full gradient-primary flex items-center justify-center hover:scale-110 transition-transform">
+                      <Icon name="Play" className="w-10 h-10 text-white" />
+                    </button>
+                  </div>
+                  {fullscreenVideo.isLive && (
+                    <Badge className="absolute top-4 left-4 bg-[#FF1744] text-white px-4 py-2 font-bold animate-pulse-glow">
+                      <div className="w-2 h-2 bg-white rounded-full mr-2 inline-block animate-pulse" />
+                      LIVE
+                    </Badge>
+                  )}
+                </div>
+                
+                <div className="p-4 bg-[#212121] border-t border-white/10">
+                  <div className="flex items-start gap-3">
+                    <Avatar className="w-12 h-12 border-2 border-[#9C27B0]" />
+                    <div className="flex-1">
+                      <h3 className="text-white font-bold text-lg mb-1">{fullscreenVideo.title}</h3>
+                      <p className="text-white/60 text-sm mb-3">{fullscreenVideo.author}</p>
+                      <div className="flex items-center gap-4 text-sm text-white/50">
+                        <span className="flex items-center gap-1">
+                          <Icon name="Eye" className="w-4 h-4" />
+                          {fullscreenVideo.views}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Icon name="Heart" className="w-4 h-4" />
+                          {fullscreenVideo.likes}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 mt-4">
+                    <button
+                      onClick={() => handleReaction(fullscreenVideo.id, 'fire')}
+                      className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 transition-all hover:scale-105 active:scale-95"
+                    >
+                      <span>🔥</span>
+                      <span className="text-sm font-bold text-white">{reactions[fullscreenVideo.id]?.fire || 0}</span>
+                    </button>
+                    <button
+                      onClick={() => handleReaction(fullscreenVideo.id, 'heart')}
+                      className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 transition-all hover:scale-105 active:scale-95"
+                    >
+                      <span>❤️</span>
+                      <span className="text-sm font-bold text-white">{reactions[fullscreenVideo.id]?.heart || 0}</span>
+                    </button>
+                    <button
+                      onClick={() => handleReaction(fullscreenVideo.id, 'clap')}
+                      className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 transition-all hover:scale-105 active:scale-95"
+                    >
+                      <span>👏</span>
+                      <span className="text-sm font-bold text-white">{reactions[fullscreenVideo.id]?.clap || 0}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="lg:w-96 flex flex-col bg-white/5">
+                <div className="p-4 border-b border-white/10">
+                  <div className="flex items-center gap-2">
+                    <Icon name="MessageCircle" className="w-5 h-5 text-[#00E5FF]" />
+                    <h3 className="text-white font-bold">Чат стрима</h3>
+                  </div>
+                </div>
+                
+                <ScrollArea className="flex-1 p-4">
+                  <div className="space-y-3">
+                    {chatMessages.map((msg, index) => (
+                      <div key={msg.id} className="flex gap-2 animate-fade-in" style={{ animationDelay: `${index * 50}ms` }}>
+                        <Avatar className="w-8 h-8 border border-[#9C27B0]" />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-white text-sm font-semibold">{msg.user}</span>
+                            <span className="text-white/40 text-xs">{msg.time}</span>
+                          </div>
+                          <p className="text-white/80 text-sm">{msg.message}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+                
+                <div className="p-4 border-t border-white/10">
+                  <div className="flex gap-2">
+                    <Input
+                      value={chatMessage}
+                      onChange={(e) => setChatMessage(e.target.value)}
+                      placeholder="Написать в чат..."
+                      className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                    />
+                    <Button className="gradient-purple-cyan text-white">
+                      <Icon name="Send" className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
