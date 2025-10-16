@@ -17,6 +17,7 @@ const Index = () => {
   const [fullscreenVideo, setFullscreenVideo] = useState<typeof videos[0] | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterLive, setFilterLive] = useState<boolean | null>(null);
+  const [subscriptions, setSubscriptions] = useState<string[]>(['DJ Max', 'Urban Vibes']);
 
   const handleReaction = (videoId: number, type: 'fire' | 'heart' | 'clap') => {
     setReactions(prev => ({
@@ -84,6 +85,22 @@ const Index = () => {
     { id: 3, user: 'Дима', message: 'Хочу туда!!!', time: '7 мин' },
     { id: 4, user: 'Катя', message: 'Лучшая движуха', time: '10 мин' }
   ];
+
+  const creators = [
+    { id: 1, name: 'DJ Max', avatar: '', subscribers: '25K', videos: 142, isOnline: true },
+    { id: 2, name: 'Party King', avatar: '', subscribers: '18K', videos: 98, isOnline: true },
+    { id: 3, name: 'Urban Vibes', avatar: '', subscribers: '32K', videos: 215, isOnline: false },
+    { id: 4, name: 'Night Owl', avatar: '', subscribers: '15K', videos: 76, isOnline: true },
+    { id: 5, name: 'Bass Master', avatar: '', subscribers: '21K', videos: 134, isOnline: false }
+  ];
+
+  const toggleSubscription = (authorName: string) => {
+    setSubscriptions(prev => 
+      prev.includes(authorName) 
+        ? prev.filter(name => name !== authorName)
+        : [...prev, authorName]
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#212121] via-[#2a1a3d] to-[#1a2535]">
@@ -354,6 +371,62 @@ const Index = () => {
               </Card>
 
               <Card className="bg-white/5 border-white/10 backdrop-blur-sm animate-fade-in" style={{ animationDelay: '200ms' }}>
+                <div className="p-4 border-b border-white/10">
+                  <div className="flex items-center gap-2">
+                    <Icon name="Users" className="w-5 h-5 text-[#9C27B0]" />
+                    <h3 className="text-white font-bold">Мои подписки</h3>
+                  </div>
+                </div>
+                <ScrollArea className="max-h-[400px]">
+                  <div className="p-4 space-y-3">
+                    {creators.map((creator, index) => (
+                      <div
+                        key={creator.id}
+                        className="p-3 rounded-lg bg-white/5 border border-white/10 hover:border-[#9C27B0]/50 transition-all cursor-pointer group animate-scale-in"
+                        style={{ animationDelay: `${index * 50}ms` }}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="relative">
+                            <Avatar className="w-12 h-12 border-2 border-[#9C27B0]" />
+                            {creator.isOnline && (
+                              <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 border-2 border-[#212121] rounded-full animate-pulse" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-white font-semibold mb-0.5 group-hover:text-[#00E5FF] transition-colors">
+                              {creator.name}
+                            </h4>
+                            <div className="flex items-center gap-2 text-xs text-white/60">
+                              <span>{creator.subscribers} подписчиков</span>
+                              <span>•</span>
+                              <span>{creator.videos} видео</span>
+                            </div>
+                          </div>
+                          <Button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleSubscription(creator.name);
+                            }}
+                            variant={subscriptions.includes(creator.name) ? "default" : "outline"}
+                            className={subscriptions.includes(creator.name) 
+                              ? "gradient-red-purple text-white text-xs px-3 h-8" 
+                              : "border-white/20 text-white/70 hover:text-white hover:bg-white/5 text-xs px-3 h-8"
+                            }
+                          >
+                            {subscriptions.includes(creator.name) ? (
+                              <Icon name="Check" className="w-3 h-3" />
+                            ) : (
+                              <Icon name="Plus" className="w-3 h-3" />
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </Card>
+
+              <Card className="bg-white/5 border-white/10 backdrop-blur-sm animate-fade-in" style={{ animationDelay: '300ms' }}>
                 <div className="p-4 border-b border-white/10">
                   <div className="flex items-center gap-2">
                     <Icon name="MapPin" className="w-5 h-5 text-[#FF1744]" />
