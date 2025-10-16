@@ -18,6 +18,12 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterLive, setFilterLive] = useState<boolean | null>(null);
   const [subscriptions, setSubscriptions] = useState<string[]>(['DJ Max', 'Urban Vibes']);
+  const [notifications, setNotifications] = useState([
+    { id: 1, author: 'DJ Max', message: 'загрузил новое видео', time: '5 мин назад', isNew: true },
+    { id: 2, author: 'Urban Vibes', message: 'начал прямой эфир', time: '12 мин назад', isNew: true },
+    { id: 3, author: 'DJ Max', message: 'запланировал событие', time: '1 час назад', isNew: false }
+  ]);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const handleReaction = (videoId: number, type: 'fire' | 'heart' | 'clap') => {
     setReactions(prev => ({
@@ -135,7 +141,65 @@ const Index = () => {
               >
                 <Icon name={mobileMenuOpen ? "X" : "Menu"} className="w-6 h-6" />
               </button>
-              <Button className="gradient-red-purple text-white font-bold hover:opacity-90 transition-opacity">
+              
+              <div className="hidden md:block relative">
+                <button
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  className="relative p-2 text-white hover:text-[#FF1744] transition-colors"
+                >
+                  <Icon name="Bell" className="w-6 h-6" />
+                  {notifications.filter(n => n.isNew).length > 0 && (
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-[#FF1744] rounded-full flex items-center justify-center animate-pulse">
+                      <span className="text-white text-xs font-bold">{notifications.filter(n => n.isNew).length}</span>
+                    </div>
+                  )}
+                </button>
+                
+                {showNotifications && (
+                  <Card className="absolute top-full right-0 mt-2 w-80 bg-[#212121] border-white/10 shadow-2xl animate-scale-in z-50">
+                    <div className="p-4 border-b border-white/10">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-white font-bold">Уведомления</h3>
+                        <button
+                          onClick={() => setNotifications(notifications.map(n => ({ ...n, isNew: false })))}
+                          className="text-xs text-[#00E5FF] hover:text-[#00E5FF]/80"
+                        >
+                          Прочитать все
+                        </button>
+                      </div>
+                    </div>
+                    <ScrollArea className="max-h-96">
+                      <div className="p-2">
+                        {notifications.map((notif, index) => (
+                          <div
+                            key={notif.id}
+                            className={`p-3 rounded-lg mb-2 transition-all cursor-pointer hover:bg-white/5 animate-fade-in ${
+                              notif.isNew ? 'bg-white/10 border border-[#FF1744]/30' : 'bg-white/5'
+                            }`}
+                            style={{ animationDelay: `${index * 50}ms` }}
+                          >
+                            <div className="flex gap-3">
+                              <Avatar className="w-10 h-10 border-2 border-[#9C27B0] flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-white text-sm">
+                                  <span className="font-semibold">{notif.author}</span>{' '}
+                                  <span className="text-white/70">{notif.message}</span>
+                                </p>
+                                <p className="text-white/40 text-xs mt-1">{notif.time}</p>
+                              </div>
+                              {notif.isNew && (
+                                <div className="w-2 h-2 bg-[#FF1744] rounded-full flex-shrink-0 mt-2" />
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </Card>
+                )}
+              </div>
+              
+              <Button className="hidden md:flex gradient-red-purple text-white font-bold hover:opacity-90 transition-opacity">
                 <Icon name="Upload" className="w-4 h-4 mr-2" />
                 Загрузить
               </Button>
