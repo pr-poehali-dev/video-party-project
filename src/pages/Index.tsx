@@ -331,7 +331,7 @@ const Index = () => {
                         {video.duration}
                       </div>
 
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-transparent">
                         <div className="w-16 h-16 rounded-full gradient-primary flex items-center justify-center">
                           <Icon name="Play" className="w-8 h-8 text-white" />
                         </div>
